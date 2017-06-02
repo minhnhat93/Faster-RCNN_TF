@@ -15,10 +15,13 @@ def parse_rec(filename):
     objects = []
     for obj in tree.findall('object'):
         obj_struct = {}
-        obj_struct['name'] = obj.find('name').text
-        obj_struct['pose'] = obj.find('pose').text
-        obj_struct['truncated'] = int(obj.find('truncated').text)
-        obj_struct['difficult'] = int(obj.find('difficult').text)
+        # obj_struct['name'] = obj.find('name').text
+        obj_struct['name'] = obj.find('class').text
+        # obj_struct['pose'] = obj.find('pose').text
+        # obj_struct['truncated'] = int(obj.find('truncated').text) if obj.find('truncated') is not None else 0
+        obj_struct['truncated'] = 0
+        # obj_struct['difficult'] = int(obj.find('difficult').text) if obj.find('difficult') is not None else 0
+        obj_struct['difficult'] = 0
         bbox = obj.find('bndbox')
         obj_struct['bbox'] = [int(bbox.find('xmin').text),
                               int(bbox.find('ymin').text),

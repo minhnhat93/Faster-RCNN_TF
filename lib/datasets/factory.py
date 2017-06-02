@@ -13,6 +13,7 @@ import datasets.pascal_voc
 import datasets.imagenet3d
 import datasets.kitti
 import datasets.kitti_tracking
+from datasets.gram import gram
 import numpy as np
 
 def _selective_search_IJCV_top_k(split, year, top_k):
@@ -30,6 +31,11 @@ for year in ['2007', '2012']:
         name = 'voc_{}_{}'.format(year, split)
         __sets[name] = (lambda split=split, year=year:
                 datasets.pascal_voc(split, year))
+
+for image_set in ['M-30', 'M-30-HD', 'Urban1']:
+    name = 'gram_{}'.format(image_set)
+    print name
+    __sets[name] = (lambda image_set=image_set: gram(image_set))
 """
 # Set up voc_<year>_<split>_top_<k> using selective search "quality" mode
 # but only returning the first k boxes
