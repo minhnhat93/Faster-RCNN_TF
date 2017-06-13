@@ -34,7 +34,7 @@ for year in ['2007', '2012']:
 
 for image_set in ['M-30', 'M-30-HD', 'Urban1']:
     name = 'gram_{}'.format(image_set)
-    print name
+    print(name)
     __sets[name] = (lambda image_set=image_set: gram(image_set))
 """
 # Set up voc_<year>_<split>_top_<k> using selective search "quality" mode
@@ -51,14 +51,14 @@ for top_k in np.arange(1000, 11000, 1000):
 for year in ['2007']:
     for split in ['train', 'val', 'trainval', 'test']:
         name = 'voc_{}_{}'.format(year, split)
-        print name
+        print(name)
         __sets[name] = (lambda split=split, year=year:
                 datasets.pascal_voc(split, year))
 
 # KITTI dataset
 for split in ['train', 'val', 'trainval', 'test']:
     name = 'kitti_{}'.format(split)
-    print name
+    print(name)
     __sets[name] = (lambda split=split:
             datasets.kitti(split))
 
@@ -77,17 +77,17 @@ for year in ['2015']:
 # NTHU dataset
 for split in ['71', '370']:
     name = 'nthu_{}'.format(split)
-    print name
+    print(name)
     __sets[name] = (lambda split=split:
             datasets.nthu(split))
 
 
 def get_imdb(name):
     """Get an imdb (image database) by name."""
-    if not __sets.has_key(name):
+    if name not in __sets:
         raise KeyError('Unknown dataset: {}'.format(name))
     return __sets[name]()
 
 def list_imdbs():
     """List all registered imdbs."""
-    return __sets.keys()
+    return list(__sets.keys())
