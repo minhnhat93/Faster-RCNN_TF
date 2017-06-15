@@ -135,7 +135,28 @@ def _rescale_boxes(boxes, inds, scales):
   return boxes
 
 
-def im_detect(sess, net, im, boxes=None):
+def im_detect_yolo(yolo_net, im):
+  predict = yolo_net.return_predict(im)
+  VOC_CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow",
+                 "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train",
+                 "tvmonitor"]
+  # small hack so that scores and pred_boxes will be 2nd arrays with garbage values at first
+  # these garbage values will never be considered by the evaluator
+  scores = [np.zeros(21), np.zeros(21)]
+  pred_boxes = [np.asarray([0, 0, 0, 0]), np.asarray([0, 0, 0, 0])]
+  for bb in predict:
+    cls = VOC_CLASSES.index(bb["label"]) + 1
+    score = np.zeros((21,))
+    score[cls] = bb["confidence"]
+    pred_box = np.asarray([bb["topleft"]["x"], bb["topleft"]["y"], bb["bottomright"]["x"], bb["bottomright"]["y"]])
+    scores.append(score)
+    pred_boxes.append(pred_box)
+  scores = np.asarray(scores)
+  pred_boxes = np.asarray(pred_boxes)
+  return scores, pred_boxes
+
+
+def im_detect_faster_rcnn(sess, net, im, boxes=None):
   """Detect object classes in an image given object proposals.
   Arguments:
       net (caffe.Net): Fast R-CNN network to use
@@ -275,7 +296,8 @@ def apply_nms(all_boxes, thresh):
   return nms_boxes
 
 
-def test_net(sess, net, imdb, weights_filename, max_per_image=300, thresh=0.05, vis=False, has_boxes=False):
+def test_net(sess, net, imdb, weights_filename, net_structure='faster-rcnn', max_per_image=300, thresh=0.05, vis=False,
+             has_boxes=False):
   """Test a Fast R-CNN network on an image database."""
   num_images = len(imdb.image_index)
   # all detections are collected into:
@@ -306,7 +328,10 @@ def test_net(sess, net, imdb, weights_filename, max_per_image=300, thresh=0.05, 
 
       im = cv2.imread(imdb.image_path_at(i))
       _t['im_detect'].tic()
-      scores, boxes = im_detect(sess, net, im, box_proposals)
+      if net_structure == 'faster-rcnn':
+        scores, boxes = im_detect_faster_rcnn(sess, net, im, box_proposals)
+      else:
+        scores, boxes = im_detect_yolo(net, im)
       _t['im_detect'].toc()
 
       _t['misc'].tic()
@@ -322,8 +347,9 @@ def test_net(sess, net, imdb, weights_filename, max_per_image=300, thresh=0.05, 
         cls_boxes = boxes[inds, j * 4:(j + 1) * 4]
         cls_dets = np.hstack((cls_boxes, cls_scores[:, np.newaxis])) \
           .astype(np.float32, copy=False)
-        keep = nms(cls_dets, cfg.TEST.NMS)
-        cls_dets = cls_dets[keep, :]
+        if net_structure == 'faster-rcnn':
+          keep = nms(cls_dets, cfg.TEST.NMS)
+          cls_dets = cls_dets[keep, :]
         if vis:
           vis_detections(image, imdb.classes[j], cls_dets)
         all_boxes[j][i] = cls_dets
@@ -341,8 +367,8 @@ def test_net(sess, net, imdb, weights_filename, max_per_image=300, thresh=0.05, 
       _t['misc'].toc()
 
       print('im_detect: {:d}/{:d} {:.3f}s {:.3f}s' \
-        .format(i + 1, num_images, _t['im_detect'].average_time,
-                _t['misc'].average_time))
+            .format(i + 1, num_images, _t['im_detect'].average_time,
+                    _t['misc'].average_time))
 
   det_file = os.path.join(output_dir, 'detections.pkl')
   if not has_boxes:

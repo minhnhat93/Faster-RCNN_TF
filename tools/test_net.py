@@ -18,6 +18,7 @@ import argparse
 import pprint
 import time, os, sys
 import tensorflow as tf
+from darkflow.net.build import TFNet
 
 def parse_args():
     """
@@ -47,6 +48,8 @@ def parse_args():
     parser.add_argument('--network', dest='network_name',
                         help='name of the network',
                         default=None, type=str)
+    parser.add_argument('--net_structure', help='yolo or faster-rcnn. default: faster-rcnn',
+                        default='faster-rcnn', choices=['yolo', 'faster-rcnn'], type=str)
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -79,19 +82,27 @@ if __name__ == '__main__':
     device_name = '/{}:{:d}'.format(args.device,args.device_id)
     print(device_name)
 
-    network = get_network(args.network_name)
-    print('Use network `{:s}` in training'.format(args.network_name))
+    if args.net_structure == 'faster-rcnn':
+      network = get_network(args.network_name)
+      print('Use network `{:s}` in training'.format(args.network_name))
 
-    if args.device == 'gpu':
+      if args.device == 'gpu':
         cfg.USE_GPU_NMS = True
         cfg.GPU_ID = args.device_id
-    else:
+      else:
         cfg.USE_GPU_NMS = False
 
-    # start a session
-    saver = tf.train.Saver()
-    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True))
-    saver.restore(sess, args.model)
-    print(('Loading model weights from {:s}').format(args.model))
+      # start a session
+      saver = tf.train.Saver()
+      sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True))
+      saver.restore(sess, args.model)
+      print(('Loading model weights from {:s}').format(args.model))
+    else:
+      options = {"model": "../darkflow/cfg/yolo-voc.cfg", "load": "../darkflow/bin/yolo-voc.weights", "threshold": 0.1,
+                 "batch": 1, "gpu": args.device_id}
+      sess = None
+      network = TFNet(options)
+      print('Use Yolo')
 
-    test_net(sess, network, imdb, weights_filename)
+
+    test_net(sess, network, imdb, weights_filename, net_structure=args.net_structure)

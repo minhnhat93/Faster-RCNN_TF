@@ -1,4 +1,4 @@
-TF_INC=$(python -c 'import tensorflow as tf; print(tf.sysconfig.get_include())')
+TF_INC=$(python3 -c 'import tensorflow as tf; print(tf.sysconfig.get_include())')
 
 CUDA_PATH=/usr/local/cuda/
 CXXFLAGS=''
@@ -24,7 +24,7 @@ fi
 
 cd ..
 
-#cd feature_extrapolating_layer
+33#cd feature_extrapolating_layer
 
 #nvcc -std=c++11 -c -o feature_extrapolating_op.cu.o feature_extrapolating_op_gpu.cu.cc \
 #	-I $TF_INC -D GOOGLE_CUDA=1 -x cu -Xcompiler -fPIC -arch=sm_50

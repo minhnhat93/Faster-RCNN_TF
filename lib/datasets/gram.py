@@ -84,7 +84,7 @@ class gram(imdb):
     image_set = np.arange(get_number_of_files(image_set_dir))
     with open(os.path.join(self._data_path, 'Annotations', self._image_set, 'imageset.txt'), 'wb') as f:
       for index in image_set:
-        f.write(str(index) + '\n')
+        f.write(bytes(str(index) + '\n', 'UTF-8'))
     return image_set
 
 
@@ -215,7 +215,7 @@ class gram(imdb):
         use_07_metric=use_07_metric)
       aps += [ap]
       print(('AP for {} = {:.4f}'.format(cls, ap)))
-      with open(os.path.join(output_dir, cls + '_pr.pkl'), 'w') as f:
+      with open(os.path.join(output_dir, cls + '_pr.pkl'), 'wb') as f:
         pickle.dump({'rec': rec, 'prec': prec, 'ap': ap}, f)
     print(('Mean AP = {:.4f}'.format(np.mean(aps))))
     print('~~~~~~~~')

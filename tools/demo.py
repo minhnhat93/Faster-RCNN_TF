@@ -1,7 +1,7 @@
 import _init_paths
 import tensorflow as tf
 from fast_rcnn.config import cfg
-from fast_rcnn.test import im_detect
+from fast_rcnn.test import im_detect_faster_rcnn
 from fast_rcnn.nms_wrapper import nms
 from utils.timer import Timer
 import matplotlib.pyplot as plt
@@ -62,7 +62,7 @@ def demo(sess, net, image_name):
     # Detect all object classes and regress object bounds
     timer = Timer()
     timer.tic()
-    scores, boxes = im_detect(sess, net, im)
+    scores, boxes = im_detect_faster_rcnn(sess, net, im)
     timer.toc()
     print(('Detection took {:.3f}s for '
            '{:d} object proposals').format(timer.total_time, boxes.shape[0]))
@@ -123,7 +123,7 @@ if __name__ == '__main__':
     # Warmup on a dummy image
     im = 128 * np.ones((300, 300, 3), dtype=np.uint8)
     for i in range(2):
-        _, _= im_detect(sess, net, im)
+        _, _= im_detect_faster_rcnn(sess, net, im)
 
     im_names = ['000456.jpg', '000542.jpg', '001150.jpg',
                 '001763.jpg', '004545.jpg']

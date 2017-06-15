@@ -38,7 +38,7 @@ case $DATASET in
     ;;
 esac
 
-time python ./tools/test_net.py --device ${DEV} --device_id ${DEV_ID} \
+time python3 ./tools/test_net.py --device ${DEV} --device_id ${DEV_ID} \
   --weights models/pascal_voc/VGGnet_fast_rcnn_iter_70000.ckpt \
   --imdb ${TEST_IMDB} \
   --cfg experiments/cfgs/faster_rcnn_end2end.yml \
