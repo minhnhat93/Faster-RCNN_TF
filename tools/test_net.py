@@ -98,7 +98,7 @@ if __name__ == '__main__':
       saver.restore(sess, args.model)
       print(('Loading model weights from {:s}').format(args.model))
     else:
-      options = {"model": "../darkflow/cfg/yolo-voc.cfg", "load": "../darkflow/bin/yolo-voc.weights", "threshold": 0.1,
+      options = {"model": "../darkflow/cfg/yolo.cfg", "load": "../darkflow/bin/yolo.weights", "threshold": 0.1,
                  "batch": 1, "gpu": args.device_id}
       sess = None
       network = TFNet(options)
