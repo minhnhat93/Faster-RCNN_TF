@@ -32,7 +32,7 @@ for year in ['2007', '2012']:
         __sets[name] = (lambda split=split, year=year:
                 datasets.pascal_voc(split, year))
 
-for image_set in ['M-30', 'M-30-HD', 'Urban1']:
+for image_set in ['M-30', 'M-30-HD', 'Urban1', 'M-30-Large', 'M-30-HD-Small']:
     name = 'gram_{}'.format(image_set)
     print(name)
     __sets[name] = (lambda image_set=image_set: gram(image_set))

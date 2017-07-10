@@ -32,13 +32,19 @@ case $DATASET in
   Urban1)
     TEST_IMDB='gram_Urban1'
     ;;
+  M-30-HD-Small)
+    TEST_IMDB='gram_M-30-HD-Small'
+    ;;
+  M-30-Large)
+    TEST_IMDB='gram_M-30-Large'
+    ;;
   *)
     echo "No dataset given"
     exit
     ;;
 esac
 
-time python3 ./tools/test_net.py --device ${DEV} --device_id ${DEV_ID} \
+time CUDA_VISIBLE_DEVICES=${DEV_ID} python3 ./tools/test_net.py --device ${DEV} --device_id ${DEV_ID} \
   --weights models/pascal_voc/VGGnet_fast_rcnn_iter_70000.ckpt \
   --imdb ${TEST_IMDB} \
   --cfg experiments/cfgs/faster_rcnn_end2end.yml \
